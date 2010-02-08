@@ -1,0 +1,24 @@
+DreamCheeky USB webmail notifier Python script
+------------------------------------------------
+
+Monitor an IMAP mailbox and/or a twitter account.
+New email flashes blue, new tweets flash yellow
+
+Usage: dreamcheeky_notifier.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  --imap-server=IMAP_SERVER
+                        imap server (default is imap.gmail.com)
+  --imap-port=IMAP_PORT
+                        imap port (default is 993)
+  --imap-ssl            use secure imap connection
+  --imap-username=IMAP_USERNAME
+                        imap_username
+  --imap-password=IMAP_PASSWORD
+                        imap password
+  --twitter-username=TWITTER_USERNAME
+                        twitter_username
+  --twitter-password=TWITTER_PASSWORD
+                        twitter password
+
