@@ -71,7 +71,7 @@ def init_device(device):
     return (handle, interface.interfaceNumber)
 
 def setRGB(handle, interfaceNumber, r, g, b):
-    color_packet = [ r, g, b, 0x00, 0x00, 0x54, 0x2C, 0x05 ]
+    color_packet = (r, g, b, 0x00, 0x00, 0x54, 0x2C, 0x05)
     handle.controlMsg(requestType = 0x21,
                       request = 0x09,
                       value = 0x81,
@@ -79,7 +79,7 @@ def setRGB(handle, interfaceNumber, r, g, b):
                       buffer = color_packet,
                       timeout = 100)
 
-def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_password, poll_delay_secs):
+def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_password):
     _LOCK_ = True
     if imap_ssl:
         server = imaplib.IMAP4_SSL(imap_server, imap_port)
@@ -103,7 +103,7 @@ def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_pass
     return len(msgnums)
 
 
-def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter_username, twitter_password):
+def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter_username, twitter_password, poll_delay_secs, twitter_skips):
     device = find_device(DREAMCHEEKY_VENDOR_ID, DREAMCHEEKY_PRODUCT_ID)
 
     if device == None:

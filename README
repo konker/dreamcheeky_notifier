@@ -33,3 +33,4 @@ Options:
                         How many times to skip the twitter check. Use this to
                         manage rate limits.
 
+NOTE: if a password is ommitted from the command line it will be prompted for.
