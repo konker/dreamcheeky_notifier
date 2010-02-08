@@ -36,12 +36,6 @@ DREAMCHEEKY_PRODUCT_ID = 0x0004
 INIT_PACKET1 = (0x1F, 0x01, 0x29, 0x00, 0xB8, 0x54, 0x2C, 0x03)
 INIT_PACKET2 = (0x00, 0x01, 0x29, 0x00, 0xB8, 0x54, 0x2C, 0x04)
 
-POLL_DELAY_SECS = 30
-
-# Number of loops that are skipped by the twitter checker.
-# Use this to avoid possible rate limit problems
-TWITTER_SKIPS = 5 # => every 2.5 minutes
-
 _LOCK_ = False
 
 # search for vendor device
@@ -85,7 +79,7 @@ def setRGB(handle, interfaceNumber, r, g, b):
                       buffer = color_packet,
                       timeout = 100)
 
-def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_password):
+def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_password, poll_delay_secs):
     _LOCK_ = True
     if imap_ssl:
         server = imaplib.IMAP4_SSL(imap_server, imap_port)
@@ -129,7 +123,7 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
     try:
         last_color = (0x00, 0x00, 0x00)
         first_loop = True
-        twitter_skips = 0
+        cur_twitter_skips = 0
         abandon_twitter = False
         while(1):
             # Check IMAP
@@ -157,9 +151,9 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
 
             # Check Twitter
             if twitter_username and not abandon_twitter:
-                if first_loop or twitter_skips == TWITTER_SKIPS:
+                if first_loop or cur_twitter_skips == twitter_skips:
                     first_loop = False
-                    twitter_skips = 0
+                    cur_twitter_skips = 0
                     try:
                         twitter_unread[0] = twitter.statuses.home_timeline()
                         if twitter_unread[1] != None:
@@ -182,9 +176,9 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
                         # something has gone wrong. abandon
                         abandon_twitter = True
                 else:
-                    twitter_skips += 1
+                    cur_twitter_skips += 1
 
-            time.sleep(POLL_DELAY_SECS)
+            time.sleep(poll_delay_secs)
 
     except KeyboardInterrupt:
         while (_LOCK_):
@@ -224,8 +218,12 @@ if __name__ == '__main__':
                       help='imap password')
     parser.add_option('--twitter-username', dest='twitter_username', default=None, 
                       help='twitter_username')
-    parser.add_option('--twitter-password', dest='twitter_password', default=None,
+    parser.add_option('--twitter-password', type='int', dest='twitter_password', default=None,
                       help='twitter password')
+    parser.add_option('--poll-delay-secs', type='int', dest='poll_delay_secs', default=30,
+                      help='Interval in seconds between server checks')
+    parser.add_option('--twitter-skips', dest='twitter_skips', default=3,
+                      help='How many times to skip the twitter check. Use this to manage rate limits.')
 
     options, args = parser.parse_args()
 
@@ -244,5 +242,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         exit(0)
 
-    main(options.imap_server, options.imap_port, options.imap_ssl, options.imap_username, imap_password, options.twitter_username, twitter_password)
+    main(options.imap_server, options.imap_port, options.imap_ssl, options.imap_username, imap_password, options.twitter_username, twitter_password, options.poll_delay_secs, options.twitter_skips)
 
