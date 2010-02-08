@@ -4,6 +4,13 @@ DreamCheeky USB webmail notifier Python script
 Monitor an IMAP mailbox and/or a twitter account.
 New email flashes blue, new tweets flash yellow
 
+Requires libusb:
+http://www.libusb.org/
+
+Twitter support requires Python Twitter Tools:
+http://mike.verdone.ca/twitter/
+
+
 Usage: dreamcheeky_notifier.py [options]
 
 Options:
