@@ -103,7 +103,7 @@ def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_pass
     return len(msgnums)
 
 
-def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter_username, twitter_password, poll_delay_secs, twitter_skips):
+def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter_username, twitter_password, poll_delay_secs, twitter_skips, debug=False):
     device = find_device(DREAMCHEEKY_VENDOR_ID, DREAMCHEEKY_PRODUCT_ID)
 
     if device == None:
@@ -191,6 +191,14 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
         while (_LOCK_):
             time.sleep(0.2)
 
+        setRGB(h, i, 0x00, 0x00, 0x00)
+
+        if debug:
+            raise
+
+        while (_LOCK_):
+            time.sleep(0.2)
+
         setRGB(h, i, 0x40, 0x00, 0x00)
         time.sleep(0.4)
         setRGB(h, i, 0x00, 0x00, 0x00)
@@ -207,23 +215,25 @@ if __name__ == '__main__':
     parser = OptionParser()
 
     parser.add_option('--imap-server', dest='imap_server', default='imap.gmail.com',
-                      help='imap server (default is %default)')
+                      help='IMAP server (default is %default)')
     parser.add_option('--imap-port', type='int', dest='imap_port', default=993,
-                      help='imap port (default is %default)')
+                      help='IMAP port (default is %default)')
     parser.add_option('--imap-ssl', dest='imap_ssl', action='store_true', default=False,
-                      help='use secure imap connection')
+                      help='Use secure imap connection')
     parser.add_option('--imap-username', dest='imap_username', default=None,
-                      help='imap_username')
+                      help='IMAP username')
     parser.add_option('--imap-password', dest='imap_password', default=None,
-                      help='imap password')
+                      help='IMAP password')
     parser.add_option('--twitter-username', dest='twitter_username', default=None, 
-                      help='twitter_username')
-    parser.add_option('--twitter-password', type='int', dest='twitter_password', default=None,
-                      help='twitter password')
+                      help='Twitter username')
+    parser.add_option('--twitter-password', dest='twitter_password', default=None,
+                      help='Twitter password')
     parser.add_option('--poll-delay-secs', type='int', dest='poll_delay_secs', default=30,
-                      help='Interval in seconds between server checks')
-    parser.add_option('--twitter-skips', dest='twitter_skips', default=3,
-                      help='How many times to skip the twitter check. Use this to manage rate limits.')
+                      help='Interval in seconds between server checks (default is %default)')
+    parser.add_option('--twitter-skips', type='int', dest='twitter_skips', default=3,
+                      help='How many times to skip the twitter check. Use this to manage rate limits. (default is %default)')
+    parser.add_option('--debug', dest='debug', action='store_true', default=False,
+                      help='Debug mode')
 
     options, args = parser.parse_args()
 
@@ -242,5 +252,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         exit(0)
 
-    main(options.imap_server, options.imap_port, options.imap_ssl, options.imap_username, imap_password, options.twitter_username, twitter_password, options.poll_delay_secs, options.twitter_skips)
+    main(options.imap_server, options.imap_port, options.imap_ssl, options.imap_username, imap_password, options.twitter_username, twitter_password, options.poll_delay_secs, options.twitter_skips, options.debug)
 
