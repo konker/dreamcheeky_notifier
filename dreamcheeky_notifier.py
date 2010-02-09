@@ -117,7 +117,7 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
     twitter_unread = [-1, None]
 
     if twitter_username:
-        from twitter import Twitter
+        from twitter import Twitter, TwitterError
         twitter = Twitter(twitter_username, twitter_password)        
 
     try:
