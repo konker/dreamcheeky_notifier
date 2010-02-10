@@ -2,7 +2,7 @@ DreamCheeky USB webmail notifier Python script
 ==============================================
 
 ###Python script to power the Dreamcheeky USB webmail notifier gadget.
-This is shipped with windows only software.###
+#####This is shipped with windows only software.
 
 - - -
 
