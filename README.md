@@ -8,12 +8,12 @@ Monitor an IMAP mailbox and/or a twitter account.
 New email flashes blue, new tweets flash yellow
 
 Requires PyUSB:
-[http://pyusb.berlios.de/]
+<http://pyusb.berlios.de/>
 
 Twitter support requires Python Twitter Tools:
-[http://mike.verdone.ca/twitter/]
+<http://mike.verdone.ca/twitter/>
 
-Usage: dreamcheeky_notifier.py [options]
+Usage: dreamcheeky_notifier.py \[options\]
 
 Options:
     -h, --help                          - show this help message and exit
