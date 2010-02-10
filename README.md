@@ -1,11 +1,7 @@
-DreamCheeky USB webmail notifier Python script
-==============================================
+##DreamCheeky USB webmail notifier Python script
 
 ###Python script to power the Dreamcheeky USB webmail notifier gadget.
-####This is shipped with windows only software.
-
-Monitor an IMAP mailbox and/or a twitter account.
-New email flashes blue, new tweets flash yellow
+This is shipped with windows only software.
 
 Requires PyUSB:  
 <http://pyusb.berlios.de/>
@@ -14,6 +10,8 @@ Twitter support requires Python Twitter Tools:
 <http://mike.verdone.ca/twitter/>
 
 - - -
+Monitor an IMAP mailbox and/or a twitter account.
+New email flashes blue, new tweets flash yellow
 
 Usage: dreamcheeky_notifier.py \[options\]
 
