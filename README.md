@@ -25,7 +25,8 @@ Options:
     --twitter-username=TWITTER_USERNAME - Twitter username
     --twitter-password=TWITTER_PASSWORD - Twitter password
     --poll-delay-secs=POLL_DELAY_SECS   - Interval in seconds between server checks (default is 30)
-    --twitter-skips=TWITTER_SKIPS       - How many times to skip the twitter check. Use this to manage rate limits. (default is 3)
+    --twitter-skips=TWITTER_SKIPS       - How many times to skip the twitter check.
+                                          Use this to manage rate limits. (default is 3)
     --debug                             - Debug mode
 
 NOTE: if a password is omitted from the command line it will be prompted for.
