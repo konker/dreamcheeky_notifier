@@ -32,7 +32,8 @@ import usb
 import getpass
 import imaplib
 
-DREAMCHEEKY_VENDOR_ID = 7476
+ 
+DREAMCHEEKY_VENDOR_ID = 0x1d34
 DREAMCHEEKY_PRODUCT_ID = 0x0004
 INIT_PACKET1 = (0x1F, 0x01, 0x29, 0x00, 0xB8, 0x54, 0x2C, 0x03)
 INIT_PACKET2 = (0x00, 0x01, 0x29, 0x00, 0xB8, 0x54, 0x2C, 0x04)
@@ -42,13 +43,12 @@ _LOCK_ = False
 # search for vendor device
 def find_device(vendor_id, product_id):
     busses = usb.busses()
-    ret = []
-    for b in busses:
-        for d in b.devices:
-            if d.idVendor == vendor_id and d.idProduct == product_id:
-                return d
+    for bus in busses:
+        for device in bus.devices:
+            if device.idVendor == vendor_id and device.idProduct == product_id:
+                return device
 
-        return None
+    return None
 
 def init_device(device):
     configuration = device.configurations[0]
@@ -108,7 +108,7 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
     device = find_device(DREAMCHEEKY_VENDOR_ID, DREAMCHEEKY_PRODUCT_ID)
 
     if device == None:
-        sys.stderr.write("No device found")
+        sys.stderr.write("No device found\n")
         exit(1)
         
     (h, i) = init_device(device)
@@ -238,6 +238,7 @@ if __name__ == '__main__':
 
     options, args = parser.parse_args()
 
+    imap_password, twitter_password = '',''
     try:
         if options.imap_username != None:
             if options.imap_password == None:
