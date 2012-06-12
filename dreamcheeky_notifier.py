@@ -111,7 +111,13 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
         sys.stderr.write("No device found\n")
         exit(1)
         
-    (h, i) = init_device(device)
+    try:
+        (h, i) = init_device(device)
+    except Exception as ex:
+        sys.stderr.write("init_device: %s\n" % ex.args)
+        exit(2)
+
+
     setRGB(h, i, 0x00, 0x00, 0x00)
 
     imap_unread = [-1, -1]
