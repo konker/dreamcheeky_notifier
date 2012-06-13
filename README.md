@@ -5,7 +5,8 @@ Python script to power the Dreamcheeky USB webmail notifier gadget which is ship
 - - -
 
 Requires PyUSB:  
-<http://pyusb.berlios.de/>
+<https://github.com/walac/pyusb>
+Note: Requires pyusb 1.0. Ubuntu/Debian package installs pyusb 0.4.
 
 Twitter support requires Python Twitter Tools:  
 <http://mike.verdone.ca/twitter/>
@@ -31,3 +32,4 @@ Options:
     --debug                             - Debug mode
 
 NOTE: if a password is omitted from the command line it will be prompted for.
+NOTE: should be run as root unless the necessary udev rules are set.

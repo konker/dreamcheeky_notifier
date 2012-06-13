@@ -40,45 +40,23 @@ INIT_PACKET2 = (0x00, 0x01, 0x29, 0x00, 0xB8, 0x54, 0x2C, 0x04)
 
 _LOCK_ = False
 
-# search for vendor device
-def find_device(vendor_id, product_id):
-    busses = usb.busses()
-    for bus in busses:
-        for device in bus.devices:
-            if device.idVendor == vendor_id and device.idProduct == product_id:
-                return device
-
-    return None
 
 def init_device(device):
-    configuration = device.configurations[0]
-    interface = configuration.interfaces[0][0]
-    endpoint = interface.endpoints[0]
+    if device.is_kernel_driver_active(0) is True:
+        device.detach_kernel_driver(0)
 
-    handle = device.open()
-    handle.controlMsg(requestType = 0x21,
-                      request = 0x09,
-                      value = 0x81,
-                      index = interface.interfaceNumber,
-                      buffer = INIT_PACKET1,
-                      timeout = 100)
-    handle.controlMsg(requestType = 0x21,
-                      request = 0x09,
-                      value = 0x81,
-                      index = interface.interfaceNumber,
-                      buffer = INIT_PACKET2,
-                      timeout = 100)
+    device.set_configuration()
 
-    return (handle, interface.interfaceNumber)
+    device.ctrl_transfer(0x21, 0x09, 0x81, 0, INIT_PACKET1, 100)
+    device.ctrl_transfer(0x21, 0x09, 0x81, 0, INIT_PACKET2, 100) 
 
-def setRGB(handle, interfaceNumber, r, g, b):
+    return device
+
+
+def setRGB(device, r, g, b):
     color_packet = (r, g, b, 0x00, 0x00, 0x54, 0x2C, 0x05)
-    handle.controlMsg(requestType = 0x21,
-                      request = 0x09,
-                      value = 0x81,
-                      index = interfaceNumber,
-                      buffer = color_packet,
-                      timeout = 100)
+    device.ctrl_transfer(0x21, 0x09, 0x81, 0, color_packet, 100)
+
 
 def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_password):
     _LOCK_ = True
@@ -87,7 +65,12 @@ def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_pass
     else:
         server = imaplib.IMAP4(imap_server, imap_port)
         
-    server.login(imap_username, imap_password)
+    try:
+        server.login(imap_username, imap_password)
+    except Exception as ex:
+        sys.stderr.write("imap:server.login: %s\n" % ex)
+        exit(4)
+
     result, message = server.select('INBOX', readonly=1)
 
     if result != 'OK':
@@ -105,20 +88,33 @@ def check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_pass
 
 
 def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter_username, twitter_password, poll_delay_secs, twitter_skips, debug=False):
-    device = find_device(DREAMCHEEKY_VENDOR_ID, DREAMCHEEKY_PRODUCT_ID)
+    device = usb.core.find(idVendor=DREAMCHEEKY_VENDOR_ID, idProduct=DREAMCHEEKY_PRODUCT_ID)
 
-    if device == None:
-        sys.stderr.write("No device found\n")
-        exit(1)
-        
+    if device is None:
+        sys.stderr.write("Device not found")
+        exit(3)
+
     try:
-        (h, i) = init_device(device)
+        init_device(device)
     except Exception as ex:
-        sys.stderr.write("init_device: %s\n" % ex.args)
+        sys.stderr.write("init_device: %s\n" % ex)
         exit(2)
 
+    # welcome pulse
+    setRGB(device, 0x00, 0x00, 0x40)
+    time.sleep(0.5)
+    setRGB(device, 0x00, 0x00, 0x00)
+    time.sleep(0.2)
+    setRGB(device, 0x00, 0x40, 0x00)
+    time.sleep(0.5)
+    setRGB(device, 0x00, 0x00, 0x00)
+    time.sleep(0.2)
+    setRGB(device, 0x40, 0x00, 0x00)
+    time.sleep(0.5)
+    setRGB(device, 0x00, 0x00, 0x00)
 
-    setRGB(h, i, 0x00, 0x00, 0x00)
+    if twitter_username is None and imap_username is None:
+        exit(0)
 
     imap_unread = [-1, -1]
     twitter_unread = [-1, None]
@@ -138,21 +134,21 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
                 imap_unread[0] = check_unread_imap(imap_server, imap_port, imap_ssl, imap_username, imap_password)
                 if imap_unread[0] < imap_unread[1]:
                     # user has done something, switch off
-                    setRGB(h, i, 0x00, 0x00, 0x00)
+                    setRGB(device, 0x00, 0x00, 0x00)
                     last_color = (0x00, 0x00, 0x00)
                     imap_unread[1] = imap_unread[0]
 
                 elif imap_unread[0] > imap_unread[1]:
                     # have new messages
-                    setRGB(h, i, 0x00, 0x00, 0x40)
+                    setRGB(device, 0x00, 0x00, 0x40)
                     time.sleep(0.4)
-                    setRGB(h, i, 0x00, 0x00, 0x00)
+                    setRGB(device, 0x00, 0x00, 0x00)
                     time.sleep(0.2)
-                    setRGB(h, i, 0x00, 0x00, 0x40)
+                    setRGB(device, 0x00, 0x00, 0x40)
                     time.sleep(0.4)
-                    setRGB(h, i, 0x00, 0x00, 0x00)
+                    setRGB(device, 0x00, 0x00, 0x00)
                     time.sleep(0.2)
-                    setRGB(h, i, 0x00, 0x00, 0x40)
+                    setRGB(device, 0x00, 0x00, 0x40)
                     last_color = (0x00, 0x00, 0x40)
                     imap_unread[1] = imap_unread[0]
 
@@ -170,14 +166,14 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
                                         twitter_unread[1] = twitter_unread[0][0]['id']
                                         break
                                     else:
-                                        setRGB(h, i, 0x40, 0x40, 0x00)
+                                        setRGB(device, 0x40, 0x40, 0x00)
                                         time.sleep(0.75)
-                                        setRGB(h, i, last_color[0], last_color[1], last_color[2])
+                                        setRGB(device, last_color[0], last_color[1], last_color[2])
                                         time.sleep(0.2)
                         else:
-                            setRGB(h, i, 0x40, 0x40, 0x00)
+                            setRGB(device, 0x40, 0x40, 0x00)
                             time.sleep(0.5)
-                            setRGB(h, i, last_color[0], last_color[1], last_color[2])
+                            setRGB(device, last_color[0], last_color[1], last_color[2])
                             twitter_unread[1] = twitter_unread[0][0]['id']
                     except TwitterError:
                         # something has gone wrong. abandon
@@ -191,14 +187,14 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
         while (_LOCK_):
             time.sleep(0.2)
 
-        setRGB(h, i, 0x00, 0x00, 0x00)
+        setRGB(device, 0x00, 0x00, 0x00)
         exit(0)
 
     except:
         while (_LOCK_):
             time.sleep(0.2)
 
-        setRGB(h, i, 0x00, 0x00, 0x00)
+        setRGB(device, 0x00, 0x00, 0x00)
 
         if debug:
             raise
@@ -206,13 +202,13 @@ def main(imap_server, imap_port, imap_ssl, imap_username, imap_password, twitter
         while (_LOCK_):
             time.sleep(0.2)
 
-        setRGB(h, i, 0x40, 0x00, 0x00)
+        setRGB(device, 0x40, 0x00, 0x00)
         time.sleep(0.4)
-        setRGB(h, i, 0x00, 0x00, 0x00)
+        setRGB(device, 0x00, 0x00, 0x00)
         time.sleep(0.2)
-        setRGB(h, i, 0x40, 0x00, 0x00)
+        setRGB(device, 0x40, 0x00, 0x00)
         time.sleep(0.4)
-        setRGB(h, i, 0x00, 0x00, 0x00)
+        setRGB(device, 0x00, 0x00, 0x00)
         time.sleep(0.2)
         exit(0)
 
