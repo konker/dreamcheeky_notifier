@@ -15,6 +15,7 @@ Twitter support requires Python Twitter Tools:
 Monitor an IMAP mailbox and/or a twitter account.
 New email flashes blue, new tweets flash yellow
 
+````
 Usage: dreamcheeky_notifier.py \[options\]
 
 Options:
@@ -30,6 +31,7 @@ Options:
     --twitter-skips=TWITTER_SKIPS       - How many times to skip the twitter check.
                                           Use this to manage rate limits. (default is 3)
     --debug                             - Debug mode
+````
 
 NOTE: if a password is omitted from the command line it will be prompted for.
 NOTE: should be run as root unless the necessary udev rules are set.
