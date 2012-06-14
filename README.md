@@ -13,10 +13,11 @@ Twitter support requires Python Twitter Tools:
 
 - - -
 Monitor an IMAP mailbox and/or a twitter account.
+
 New email flashes blue, new tweets flash yellow
 
 ````
-Usage: dreamcheeky_notifier.py \[options\]
+Usage: dreamcheeky_notifier.py [options]
 
 Options:
     -h, --help                          - show this help message and exit
@@ -34,4 +35,6 @@ Options:
 ````
 
 NOTE: if a password is omitted from the command line it will be prompted for.
+
 NOTE: should be run as root unless the necessary udev rules are set.
+
